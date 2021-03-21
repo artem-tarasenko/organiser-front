@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -15,7 +15,10 @@ import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
 
 function SingleItem(props) {
-    const {item, onDelete, onHide, onSwap, onMark} = props;
+    const [state, setState] = useState(false);
+    const {item, onDelete, onHide, onSwap, onMark, curr} = props;
+
+    
 
     //passing functions from App to handle icons back (with item )
     const handleBookmarking = () => onMark(item);
@@ -23,15 +26,54 @@ function SingleItem(props) {
     const handleDelete = () => onDelete(item);
     const handleHiding = () => onHide(item);
 
-    function showHideIcons() {
+    function showHideIcons(e, usedIcons) {
+        const iconSet = e.target.parentNode;
+        iconSet.querySelector(".item-buttons-additional").classList.toggle("open");
+                
+        setState(prevState => !prevState);
 
+        // setTimeout(function() {
+        //     console.log("timeout! state: ", state);
+        //     state && iconSet.querySelector(".item-buttons-additional").classList.toggle("open");
+        // }, 2000);
+        
     }
 
+
+    //24 - dollars, 20 - rubles
     return (
         <div className="col-item">
             <p className="item-field-1">{item.name}</p>
-            <p className="item-field-2">{item.price}</p>
+            <p className="item-field-2">
+                {item.price} {curr === "cad" ? '\u0024' : '\u20BD'} 
+            </p>
             <div className="item-buttons">
+                <IconButton aria-label="more" onClick={showHideIcons}>
+                    { !state 
+                        ? <UnfoldMoreIcon className="folding-icon" />
+                        : <UnfoldLessIcon className="folding-icon" />
+                    }
+                </IconButton>
+                <div className="item-buttons-additional">
+                    <IconButton aria-label="swap" onClick={handleSwap}>
+                        <SyncAltIcon />
+                    </IconButton>
+                    <FormControlLabel
+                        control={
+                            <Checkbox 
+                                color="default"
+                                icon={<VisibilityOffOutlinedIcon />} 
+                                checkedIcon={<VisibilityOutlinedIcon />}
+                                checked={item.visible} 
+                                onChange={handleHiding} 
+                                name="visible" 
+                            />
+                        }
+                    />
+                    <IconButton aria-label="delete" onClick={handleDelete}>
+                        <DeleteOutlineOutlinedIcon />
+                    </IconButton>
+                </div>
                 <FormControlLabel
                     control={
                         <Checkbox 
@@ -43,30 +85,6 @@ function SingleItem(props) {
                         />
                     }
                 />
-                <IconButton aria-label="swap" onClick={handleSwap}>
-                    <SyncAltIcon />
-                </IconButton>
-                <FormControlLabel
-                    control={
-                        <Checkbox 
-                            color="default"
-                            icon={<VisibilityOffOutlinedIcon />} 
-                            checkedIcon={<VisibilityOutlinedIcon />}
-                            checked={item.visible} 
-                            onChange={handleHiding} 
-                            name="visible" 
-                        />
-                    }
-                />
-                <IconButton aria-label="delete" onClick={handleDelete}>
-                    <DeleteOutlineOutlinedIcon />
-                </IconButton>
-                <IconButton aria-label="more" onClick={showHideIcons}>
-                    <MoreHorizIcon />
-                    <CloseIcon />
-                    <UnfoldMoreIcon />
-                    <UnfoldLessIcon />
-                </IconButton>
             </div>
         </div>
         );

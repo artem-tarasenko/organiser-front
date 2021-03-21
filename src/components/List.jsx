@@ -21,7 +21,12 @@ function List(props) {
                 {/* HEADERS */}
                 <div className="col-headers">
                     <p className="item-field-1">Наименование</p>
-                    <p className="item-field-2">RUB</p>
+                    <p className="item-field-2">
+                        {props.curr === "cad" 
+                            ? <button className="currency-switch" onClick={props.onSwitch} >CAD</button> 
+                            : <button className="currency-switch" onClick={props.onSwitch} >RUR</button>
+                        }
+                    </p>
                 </div>
                 {/* TABLE */}
                 <div className="col-items">
@@ -33,6 +38,7 @@ function List(props) {
                             onHide={props.onHideItem} 
                             onSwap={props.onMoveItem} 
                             onMark={props.onBookItem} 
+                            curr={props.curr}
                         />
                         )}
                 </div>

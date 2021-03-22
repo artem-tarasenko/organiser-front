@@ -234,6 +234,26 @@ input[type="button"] {
     transition: all 300ms cubic-bezier(0.8, 0, 0.2, 1);
 }
 
+.currency-btns {
+    display: flex;
+    flex-flow: row;
+    padding: 15px 0;
+}
+
+.new-line-currency {
+    margin: 0 3px;
+    border: 0;
+}
+
+.new-line-currency:focus {
+    outline: 0;
+}
+
+.new-line-currency.selected {
+    background-color: #d8d8d8;
+    box-shadow: 2px 2px 3px silver;
+}
+
 /* ###################################################### */
 /* ########     HEADER SETTINGS     ##################### */
 .settings-modal {

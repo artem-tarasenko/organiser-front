@@ -21,13 +21,15 @@ function App(props) {
   const [list, setList] = useState({});
   const [settings, setSettings] = useState({});
 
-  let itemsCurrency = "cad";
+  
   const currency = {base: "EUR", rates: {CAD: 1.5, RUB: 88.6}};
   //console.log("RATES ", currency.data.base, currency.data.rates);
   console.log("List (state):  ", list);
 
   // setList(props.data);
   // setSettings(props.settings);
+  // let itemsCurrency = "rub";
+  const rateCadRub =  currency.rates.RUB / currency.rates.CAD;
 
   async function fetchData() {
     try {
@@ -35,18 +37,33 @@ function App(props) {
       const settingsData = await axios.get('https://organizer-apps-api.herokuapp.com/settings');
       
       //fetching external API with rates here
+
+
         
       const beforeList = expences.data.filter( item => item.list === "before");
       const afterList = expences.data.filter(item => item.list === "after");
+
+      let convertedBeforeList = convertCosts(beforeList);
+      let convertedAfterList = convertCosts(afterList)
+
+      // console.group('Testing stuff');
+      // console.log("Optimized: ", testBefore[0].name, testBefore[0].currency, testBefore[0].price);
+      // console.log("Optimized: ", testBefore[1].name, testBefore[1].currency, testBefore[1].price);
+      // console.log("Orig: ", beforeList[0].name, beforeList[0].currency, beforeList[0].price);
+      // console.log("Orig: ", beforeList[1].name, beforeList[1].currency, beforeList[1].price);
+      // console.groupEnd();
       
-      setList({before: [...beforeList], after: [...afterList]});
-      setSettings({budget: settingsData.data[0].budget});
+      setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
+      setSettings({budget: settingsData.data[0].budget, appCurrency: "rub"});
     } catch (error) {
       console.error("API Request error", error);
     }
   }
 
 	useEffect(() => {fetchData()}, []);
+
+
+
 
 
 // #############################################################################################
@@ -159,8 +176,12 @@ function App(props) {
   function onMove(passedItem) {
     const arrToDelType = passedItem.list === "before" ? "before" : "after";
     const arrToAddType = passedItem.list === "before" ? "after" : "before";
-    const updatedItem = {...passedItem, list: passedItem.list === "before" ? "after" : "before"}
-
+    const updatedItem = {...passedItem, 
+                            price: passedItem.price, 
+                            currency: passedItem.currency, 
+                            list: passedItem.list === "before" ? "after" : "before"
+                        }
+    console.log("Updated ite to post", updatedItem)
     setList( prevList => {
       const arrToDel = prevList[passedItem.list].filter( item => item.id !== passedItem.id);
       const arrToAdd = [...prevList[arrToAddType], updatedItem ]; //{ after: [] }
@@ -223,47 +244,36 @@ function App(props) {
     return {totalBefore: totalBefore, totalAfter: totalAfter, budget: budget, total: total}
   }
 
-  function switchCurrency(baseCurrency) {
 
-    // const usedCurrency = baseCurrency
-    //   ? baseCurrency
-    //   : itemsCurrency === "cad" 
-    //     ? "rub" 
-    //     : "cad";
-        
-    itemsCurrency = itemsCurrency === "cad" ? "rub" : "cad";
-
-    //recalc all list
-    function convertCosts(item) {
-      console.log("Old item: ", item.name, item.price, item.currency)
-      // const ratesRub = currency.rates.RUB;
-      // const ratesCad = currency.rates.CAD;
-      const rateCadRub =  currency.rates.RUB / currency.rates.CAD;
-      // console.group('RATES TESTS');
-      //   console.log("ratesRub: ", ratesRub);
-      //   console.log("ratesRub type: ", typeof(ratesRub));
-      //   console.log("ratesCad: ", ratesCad);
-      //   console.log("ratesCad type: ", typeof(ratesCad));
-      //   console.log("rateCadRub: ", rateCadRub);
-      //   console.log("rateCadRub type: ", typeof(rateCadRub));
-      // console.groupEnd();
-      if(item.currency === "cad") {
-        return {...item, price: (item.price * rateCadRub), currency: "rub"};
-      } else if(item.currency === "rub") {  
-        return {...item, price: (item.price / rateCadRub), currency: "cad"};
+  function convertCosts(arr) {
+    let newArr = arr.map(item => {
+      if(item.currency !== settings.appCurrency) {
+        //convert price and update currency
+        if(item.currency === "cad") {
+          //Result * 10, round it to a number and them /10 to get 1 decimal num
+          return {...item, price: Math.round(item.price * rateCadRub), currency: "rub"};
+        } else if(item.currency === "rub") {
+          return {...item, price: Math.round(item.price / rateCadRub), currency: "cad"};
+        }
       } else {
-        console.log("switchCurrency - convertCosts: Error - unknown currency of the item:", item);
+        //save existing object
+        return item;
       }
-    }
-
-    function recalcArray(array) {
-      const tempArray = array.map(item => item.currency === "itemsCurrency" ? item : convertCosts(item))
-      console.log("TEMP ARRAY CONVERTED  >> ", tempArray);
-    }
-
-    setList( prevList => {
-      return {before: recalcArray(list.before), after: recalcArray(list.after)}
     })
+    return newArr;
+  }
+
+  function switchCurrency() {
+    console.log("Before switch", settings.appCurrency);
+    setSettings(prevValue => settings.appCurrency === "cad" 
+      ? {...prevValue, appCurrency: "rub"} 
+      : {...prevValue, appCurrency: "cad"} 
+    );
+
+    console.log("After switch", settings.appCurrency);
+    let convertedBeforeList = convertCosts(list.before);
+    let convertedAfterList = convertCosts(list.after);
+    setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
   }
 
 
@@ -286,11 +296,11 @@ function App(props) {
                   onDeleteItem={onDelete}
                   onHideItem={onHide}
                   onBookItem={onBookmark}
-                  curr={itemsCurrency}
+                  curr={settings.appCurrency}
                   onSwitch={switchCurrency}
                   >
                     <ListMessage />
-                    <InputLineGroup array="before" onItemAdd={onAdd} />
+                    <InputLineGroup array="before" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
                   </List>
               }
             </div>
@@ -307,10 +317,10 @@ function App(props) {
                   onDeleteItem={onDelete}
                   onHideItem={onHide}
                   onBookItem={onBookmark}
-                  curr={itemsCurrency}
+                  curr={settings.appCurrency}
                   onSwitch={switchCurrency}
                   >
-                    <InputLineGroup array="after" onItemAdd={onAdd} />
+                    <InputLineGroup array="after" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
                 </List>
               }
             </div>

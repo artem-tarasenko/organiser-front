@@ -14,6 +14,7 @@ function InputLineGroup(props) {
 
     let inputFieldText;
     let inputFieldPrice;
+    let addItemCurrency = null;
 
     // console.log("Text field ", inputFieldText);
     // console.log("Price field ", inputFieldPrice);
@@ -46,16 +47,50 @@ function InputLineGroup(props) {
 
     function onAddPrice() {
         price = inputFieldPrice.value;
+        let appCurrency = props.settings.appCurrency;
         
         document.querySelector(`.add-btn-group.text.${props.array}`).classList.toggle("active");
         document.querySelector(`.add-btn-group.price.${props.array}`).classList.toggle("active");
 
-        let newArrayItem = {id: nanoid(), name: text, price: price, important: false, list: props.array, visible: true, currency: "cad"} 
+        let newArrayItem = {id: nanoid(), 
+                            name: text, 
+                            price: price, 
+                            important: false, 
+                            list: props.array, 
+                            visible: true, 
+                            currency: addItemCurrency ? addItemCurrency : appCurrency} 
         
-        props.onItemAdd(newArrayItem);
-
-        resetInput(inputFieldText);
-        resetInput(inputFieldPrice);
+        if(addItemCurrency) {
+            //here need to add checking of curr and if different -convert
+            console.log("Checking currencies (new, def): ", addItemCurrency, appCurrency)
+            if(addItemCurrency !== appCurrency) {
+                if(addItemCurrency === "cad") {
+                    console.log("New item curr - cad, price before convert:", newArrayItem.price); 
+                    newArrayItem = {...newArrayItem, 
+                                        price: Math.round(newArrayItem.price * props.exRate), 
+                                        currency: "rub"
+                                    }
+                } else if(addItemCurrency === "rub") {
+                    console.log("New item curr - rub, price before convert:", newArrayItem);
+                    newArrayItem = {...newArrayItem, 
+                                        price: Math.round(newArrayItem.price / props.exRate), 
+                                        currency: "cad"
+                                    }
+                }
+                console.log("New item price converted, new values (price, curr, item): ", newArrayItem.price, newArrayItem.currency, newArrayItem)
+                props.onItemAdd(newArrayItem);
+                resetInput(inputFieldText);
+                resetInput(inputFieldPrice);
+            } else {
+                console.log("Currency matches, no converting... (new, def): ", addItemCurrency, appCurrency)
+                props.onItemAdd(newArrayItem);
+                resetInput(inputFieldText);
+                resetInput(inputFieldPrice);
+            }
+        } else {
+            console.log("PICK CURRENCY");
+            //make alert 
+        }
     }
 
     function onBackToText() {
@@ -74,13 +109,23 @@ function InputLineGroup(props) {
         }
     }
 
+    function newItemCurrency(e) {
+        const classes = ".new-line-currency." + e.target.classList[1];
+        const buttons = [...document.querySelectorAll(classes)];
+        buttons.forEach(item => item.classList.remove("selected"))
+        const activeCurrency = e.target.classList.toggle("selected");
+
+        addItemCurrency = e.target.value;
+        console.log("selected currency", addItemCurrency);
+    }
+
     return <React.Fragment>
         <div className={`add-btn-group text ${props.array} active`}>
             <div className="input-group">
                 <input type="text" id={`input-text-${props.array}`} className={props.array} placeholder="Add new line..." onKeyDown={handleEnter} tabIndex="-1" />
                 <button className={`reset-${props.array} ${props.array}`} onClick={resetInput}>X</button>
             </div>
-
+            
             
             <IconButton aria-label="addItem" onClick={onAddText} >
                 <ArrowForwardIcon />
@@ -90,6 +135,10 @@ function InputLineGroup(props) {
             <div className="input-group">
                 <input type="number" id={`input-price-${props.array}`} className={props.array} placeholder="Add price..." onKeyDown={handleEnter} tabIndex="1" />
                 <button className={`reset-${props.array} ${props.array}`} onClick={resetInput}>X</button>
+            </div>
+            <div className={`currency-btns ${props.array}`}>
+                <button className={`new-line-currency ${props.array}`} onClick={newItemCurrency} value="cad">CAD</button>
+                <button className={`new-line-currency ${props.array}`} onClick={newItemCurrency} value="rub">RUB</button>
             </div>
             <IconButton aria-label="addItem" onClick={onBackToText} >
                 <ArrowBackIcon  />

@@ -86,6 +86,16 @@ p, input {
     text-transform: uppercase;
 }
 
+p.header-title {
+    flex-grow: 1;
+}
+
+p.currency-button {
+    margin-left: 20px;
+}
+
+
+
 .col:first-of-type {
     border-right: 1px solid black;
 }
@@ -193,7 +203,7 @@ input[type="button"] {
 }
 .input-group button {
     position: relative;
-    right: 30px;
+    right: 50px;
     opacity: 0;
     margin: 15px 0;
     color: #b0b0b0;
@@ -237,7 +247,7 @@ input[type="button"] {
 .currency-btns {
     display: flex;
     flex-flow: row;
-    padding: 15px 0;
+    padding: 15px 10px 15px 0;
 }
 
 .new-line-currency {
@@ -252,6 +262,12 @@ input[type="button"] {
 .new-line-currency.selected {
     background-color: #d8d8d8;
     box-shadow: 2px 2px 3px silver;
+}
+
+
+.table-sum {
+    display: flex;
+    flex-direction: row;
 }
 
 /* ###################################################### */

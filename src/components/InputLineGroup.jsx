@@ -9,6 +9,7 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
 
 function InputLineGroup(props) {
+    const { settings: { budget, appCurrency } } = props;
     let text
     let price
 
@@ -17,7 +18,9 @@ function InputLineGroup(props) {
     let addItemCurrency = null;
 
     // console.log("Text field ", inputFieldText);
-    // console.log("Price field ", inputFieldPrice);
+    //console.log("Settings ", settings);
+    console.log("Budget ", budget);
+    console.log("Curr ", appCurrency);
 
     function resetInput(event) {
         if(event.target) {
@@ -47,7 +50,6 @@ function InputLineGroup(props) {
 
     function onAddPrice() {
         price = inputFieldPrice.value;
-        let appCurrency = props.settings.appCurrency;
         
         document.querySelector(`.add-btn-group.text.${props.array}`).classList.toggle("active");
         document.querySelector(`.add-btn-group.price.${props.array}`).classList.toggle("active");
@@ -133,7 +135,7 @@ function InputLineGroup(props) {
         </div>
         <div className={`add-btn-group price ${props.array}`}>
             <div className="input-group">
-                <input type="number" id={`input-price-${props.array}`} className={props.array} placeholder="Add price..." onKeyDown={handleEnter} tabIndex="1" />
+                <input type="text" id={`input-price-${props.array}`} className={props.array} placeholder="Add price..." onKeyDown={handleEnter} tabIndex="1" />
                 <button className={`reset-${props.array} ${props.array}`} onClick={resetInput}>X</button>
             </div>
             <div className={`currency-btns ${props.array}`}>

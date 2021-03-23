@@ -20,16 +20,51 @@ import axios from 'axios';
 function App(props) {
   const [list, setList] = useState({});
   const [settings, setSettings] = useState({});
+  const [sum, setSum] = useState({before: 0, after: 0})
 
   
   const currency = {base: "EUR", rates: {CAD: 1.5, RUB: 88.6}};
   //console.log("RATES ", currency.data.base, currency.data.rates);
   console.log("List (state):  ", list);
+  console.log("Settings", settings);
+  console.log("Summary", sum);
 
   // setList(props.data);
   // setSettings(props.settings);
   // let itemsCurrency = "rub";
   const rateCadRub =  currency.rates.RUB / currency.rates.CAD;
+
+  function convertCosts(arr, curr) {
+    let newArr = arr.map(item => {
+      //console.group('#################   CONVERTING ARRAY ###############################');
+      //console.log("Testing item (name, curr) > ", item.name, "#", item.currency);
+      //console.log("COMPARE CURRENCY BEFORE CONVERTING: item - settings: ", item.currency, "Default: ", curr)
+      if(item.currency !== curr) {
+        //console.log("Item will be converted (name, curr) > ", item.name, "#", item.currency);
+        //convert price and update currency
+        if(item.currency === "cad") {
+          //console.log("Converting from CAD to RUB >", item.name, "#", item.currency);
+          //console.groupEnd();
+          //Result * 10, round it to a number and them /10 to get 1 decimal num
+          return {...item, price: Math.round(item.price * rateCadRub), currency: "rub"};
+        } else if(item.currency === "rub") {
+          //console.log("Converting from RUB to CAD >", item.name, "#", item.currency);
+          //console.groupEnd();
+          return {...item, price: Math.round(item.price / rateCadRub), currency: "cad"};
+        }
+      } else {
+        //save existing object
+        //console.log("Item currency match, returning as is (name, cur)", item.name, "#", item.currency)
+        //console.groupEnd();
+        return item;
+      }
+    })
+    //console.log("CONVERTING - resulting array to return", newArr);
+    // console.groupEnd();
+    return newArr;
+  }
+
+
 
   async function fetchData() {
     try {
@@ -38,23 +73,28 @@ function App(props) {
       
       //fetching external API with rates here
 
-
+      setSettings({budget: settingsData.data[0].budget, appCurrency: "rub"});
         
       const beforeList = expences.data.filter( item => item.list === "before");
       const afterList = expences.data.filter(item => item.list === "after");
+      const defaultCurrency = "rub"
 
-      let convertedBeforeList = convertCosts(beforeList);
-      let convertedAfterList = convertCosts(afterList)
+      let convertedBeforeList = convertCosts(beforeList, defaultCurrency);
+      let convertedAfterList = convertCosts(afterList, defaultCurrency)
 
       // console.group('Testing stuff');
-      // console.log("Optimized: ", testBefore[0].name, testBefore[0].currency, testBefore[0].price);
-      // console.log("Optimized: ", testBefore[1].name, testBefore[1].currency, testBefore[1].price);
+      // console.log("Optimized: ", convertedBeforeList[0].name, convertedBeforeList[0].currency, convertedBeforeList[0].price);
+      // console.log("Optimized: ", convertedBeforeList[1].name, convertedBeforeList[1].currency, convertedBeforeList[1].price);
       // console.log("Orig: ", beforeList[0].name, beforeList[0].currency, beforeList[0].price);
       // console.log("Orig: ", beforeList[1].name, beforeList[1].currency, beforeList[1].price);
+      // console.log("Orig after: ", afterList);
+      // console.log("Optimized after: ", convertedAfterList);
       // console.groupEnd();
-      
+
       setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
-      setSettings({budget: settingsData.data[0].budget, appCurrency: "rub"});
+      setSum({before: sumItems(convertedBeforeList), after: sumItems(convertedAfterList)})
+
+      //setSum({before: initSumBefore, after: initSumAfter})
     } catch (error) {
       console.error("API Request error", error);
     }
@@ -62,7 +102,7 @@ function App(props) {
 
 	useEffect(() => {fetchData()}, []);
 
-
+ 
 
 
 
@@ -77,6 +117,10 @@ function App(props) {
     setList( prevList => {
       return {...prevList, [newItem.list]: [...prevList[newItem.list], newItem]}
     });
+
+    //ARRAYS seems like old in the moment of passing, new item IS NOT INCLUDED
+    console.log("Testing array size (before after):", list.before.length, list.after.length)
+    setSum({before: sumItems(list.before), after: sumItems(list.after)})
 
     const message = document.querySelector(".status-label");
     message.innerHTML = "Saving new item to DB..."
@@ -225,44 +269,6 @@ function App(props) {
   }
 
 // ########################################################
-  // function onAdd(text, itemPrice, toList) {
-  //   let newArrayItem = {id: nanoid(), name: text, price: itemPrice, important: false, list: toList, visible: true, currency: "cad"} 
-
-  //   postData(newArrayItem);
-  // }
-
-
-  function sumItems(array) {
-    return list[array].filter(item => item.visible === true).reduce( (sum, item) => sum + item.price, 0)
-  }
-
-  const totals = () => {
-    const totalBefore = list.length > 0 ? sumItems("before") : null;
-    const totalAfter = list.length > 0 ? sumItems("after") : null;
-    const budget = settings.budget;
-    const total = budget - (totalBefore + totalAfter);
-    return {totalBefore: totalBefore, totalAfter: totalAfter, budget: budget, total: total}
-  }
-
-
-  function convertCosts(arr) {
-    let newArr = arr.map(item => {
-      if(item.currency !== settings.appCurrency) {
-        //convert price and update currency
-        if(item.currency === "cad") {
-          //Result * 10, round it to a number and them /10 to get 1 decimal num
-          return {...item, price: Math.round(item.price * rateCadRub), currency: "rub"};
-        } else if(item.currency === "rub") {
-          return {...item, price: Math.round(item.price / rateCadRub), currency: "cad"};
-        }
-      } else {
-        //save existing object
-        return item;
-      }
-    })
-    return newArr;
-  }
-
   function switchCurrency() {
     console.log("Before switch", settings.appCurrency);
     setSettings(prevValue => settings.appCurrency === "cad" 
@@ -276,6 +282,25 @@ function App(props) {
     setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
   }
 
+
+
+
+  function sumItems(array) {
+    if(array) {
+      const temp = array.filter(item => item.visible === true);
+      console.log("TEMP ARRAY FILTERED", temp);
+      const temp2 = temp.reduce( (accum, item) => accum + item.price, 0)
+      console.log("TEMP REDUCED", temp2);
+      return temp2
+    } else {
+      console.log("Array seems like not ready: ", array)
+    }
+    
+  }
+
+  function updateSums() {
+    setSum({before: sumItems("before"), after: sumItems("after")})
+  }
 
   //console.log("RATE (55,3)", rateCadRub);
 
@@ -292,6 +317,8 @@ function App(props) {
                 ? <p>Loading...</p>
                 : <List 
                   itemList={list["before"]} 
+                  sum={sum.before}
+                  settings={settings}
                   onMoveItem={onMove} 
                   onDeleteItem={onDelete}
                   onHideItem={onHide}
@@ -299,7 +326,7 @@ function App(props) {
                   curr={settings.appCurrency}
                   onSwitch={switchCurrency}
                   >
-                    <ListMessage />
+                    
                     <InputLineGroup array="before" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
                   </List>
               }
@@ -312,7 +339,8 @@ function App(props) {
                 ? <p>Loading...</p>
                 : <List 
                   itemList={list["after"]} 
-                  sum={sumItems("after")}
+                  sum={sum.after}
+                  settings={settings}
                   onMoveItem={onMove} 
                   onDeleteItem={onDelete}
                   onHideItem={onHide}
@@ -326,6 +354,7 @@ function App(props) {
             </div>
           </div>
         </div>
+      <ListMessage />
       </div>
     </Container>
   );

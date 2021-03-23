@@ -20,8 +20,9 @@ function List(props) {
             <div className="col">
                 {/* HEADERS */}
                 <div className="col-headers">
-                    <p className="item-field-1">Наименование</p>
-                    <p className="item-field-2">
+                    <p className="header-title">Наименование</p>
+                    <p className="summary">Total: {props.sum}</p>
+                    <p className="currency-button">
                         {props.curr === "cad" 
                             ? <button className="currency-switch" onClick={props.onSwitch} >CAD</button> 
                             : <button className="currency-switch" onClick={props.onSwitch} >RUR</button>
@@ -41,11 +42,6 @@ function List(props) {
                             curr={props.curr}
                         />
                         )}
-                </div>
-                {/* SUMMARY */}
-                <div className="table-sum">
-                    <p className="item-field-1"></p>
-                    <p className="item-field-2">{props.sum}</p>
                 </div>
                 {/* INPUTS */}
                 {props.children}

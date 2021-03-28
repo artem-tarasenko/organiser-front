@@ -25,23 +25,73 @@ p, input {
     justify-content: flex-start;
     align-items: center;
     min-height: 700px;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     background-color: #ececec;
 }
 
 .heading {
     width: 100%;
     text-align: center;
-    margin: 20px;
-    padding: 10px 20px;
+    padding: 30px 20px 10px 20px;
     text-transform: uppercase;
     color: rgb(65, 64, 71);
-    ;
+    display: flex;
+    flex-direction: column;
+    background-color: #7e9097;
+    box-shadow: 0px 1px 7px rgb(0 0 0 / 77%);
 }
 
 .heading h1 {
     padding: 0;
     margin: auto 0;
+}
+
+.heading-title {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #c4c4c4;
+    color: #e1e1e1;
+}
+
+button.heading-button svg {
+    color: #e3e3e3;
+}
+
+.heading-totals {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    justify-content: center;
+    padding: 10px 0;
+    background-color: #7e9097;
+    color: #d5d5d5;
+    align-items: center;
+}
+
+p.totals.budget {
+    color: #bbfa9a;
+    font-size: 24px;
+}
+
+p.totals.sum {
+
+}
+
+p.totals.sum-result {
+    color: #b0e7f0;
+    /* color: #f0b0b0; */
+    font-size: 24px;
+    font-weight: 600;
+}
+
+p.totals.sum-result.excel {
+    color: #f0b0b0;
+}
+
+.heading-totals p {
+    margin: 0 20px;
 }
 
 .content {
@@ -97,7 +147,7 @@ p.currency-button {
 
 
 .col:first-of-type {
-    border-right: 1px solid black;
+    /* border-right: 1px solid black; */
 }
 
 .col-item {
@@ -109,6 +159,10 @@ p.currency-button {
 .col-item p {
     font-size: 16px;
     font-weight: 300;
+}
+
+.col-item p.crossed {
+    text-decoration: line-through;
 }
 
 p.item-field-1 {
@@ -247,12 +301,15 @@ input[type="button"] {
 .currency-btns {
     display: flex;
     flex-flow: row;
-    padding: 15px 10px 15px 0;
+    align-items: center;
 }
 
 .new-line-currency {
     margin: 0 3px;
     border: 0;
+    padding: 11px 20px;
+    height: 35px;
+    border-radius: 5px;
 }
 
 .new-line-currency:focus {
@@ -281,4 +338,21 @@ input[type="button"] {
     padding: 20px 40px;
     border-radius: 5px;
     color: #525252;
+}
+
+
+
+
+
+
+
+/* ###################################################### */
+/* ########     SETTINGS     ##################### */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type='number'] {
+    -moz-appearance: textfield;
 }

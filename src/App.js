@@ -4,8 +4,6 @@ import List from "./components/List.jsx";
 import TableHeading from "./components/TableHeading.jsx";
 import InputLineGroup from "./components/InputLineGroup.jsx";
 import ListMessage from "./components/ListMessage.jsx";
-//import testData from "./testData.js";
-
 import axios from 'axios';
 
 
@@ -25,9 +23,9 @@ function App(props) {
   
   const currency = {base: "EUR", rates: {CAD: 1.5, RUB: 88.6}};
   //console.log("RATES ", currency.data.base, currency.data.rates);
-  console.log("List (state):  ", list);
-  console.log("Settings", settings);
-  console.log("Summary", sum);
+  sum && console.log("List (state):  ", list);
+  sum && console.log("Settings", settings);
+  sum && console.log("Summary", sum);
 
   // setList(props.data);
   // setSettings(props.settings);
@@ -39,18 +37,18 @@ function App(props) {
       //console.group('#################   CONVERTING ARRAY ###############################');
       //console.log("Testing item (name, curr) > ", item.name, "#", item.currency);
       //console.log("COMPARE CURRENCY BEFORE CONVERTING: item - settings: ", item.currency, "Default: ", curr)
-      if(item.currency !== curr) {
+      if(item.currency !== settings.appCurrency) {
         //console.log("Item will be converted (name, curr) > ", item.name, "#", item.currency);
         //convert price and update currency
         if(item.currency === "cad") {
           //console.log("Converting from CAD to RUB >", item.name, "#", item.currency);
           //console.groupEnd();
           //Result * 10, round it to a number and them /10 to get 1 decimal num
-          return {...item, price: Math.round(item.price * rateCadRub), currency: "rub"};
+          return {...item, price: ((Math.round((item.price * rateCadRub) * 100) / 100)), currency: "rub"};
         } else if(item.currency === "rub") {
           //console.log("Converting from RUB to CAD >", item.name, "#", item.currency);
           //console.groupEnd();
-          return {...item, price: Math.round(item.price / rateCadRub), currency: "cad"};
+          return {...item, price: ((Math.round((item.price / rateCadRub) * 100) / 100)), currency: "cad"};
         }
       } else {
         //save existing object
@@ -64,8 +62,6 @@ function App(props) {
     return newArr;
   }
 
-
-
   async function fetchData() {
     try {
       const expences = await axios.get('https://organizer-apps-api.herokuapp.com/expences');
@@ -73,7 +69,7 @@ function App(props) {
       
       //fetching external API with rates here
 
-      setSettings({budget: settingsData.data[0].budget, appCurrency: "rub"});
+      setSettings({budget: settingsData.data[0].budget, appCurrency: "rub", budgetCurrency: "cad"});
         
       const beforeList = expences.data.filter( item => item.list === "before");
       const afterList = expences.data.filter(item => item.list === "after");
@@ -101,9 +97,7 @@ function App(props) {
   }
 
 	useEffect(() => {fetchData()}, []);
-
- 
-
+  useEffect(() => setSum({before: sumItems(list.before), after: sumItems(list.after)}), [list])
 
 
 // #############################################################################################
@@ -117,10 +111,6 @@ function App(props) {
     setList( prevList => {
       return {...prevList, [newItem.list]: [...prevList[newItem.list], newItem]}
     });
-
-    //ARRAYS seems like old in the moment of passing, new item IS NOT INCLUDED
-    console.log("Testing array size (before after):", list.before.length, list.after.length)
-    setSum({before: sumItems(list.before), after: sumItems(list.after)})
 
     const message = document.querySelector(".status-label");
     message.innerHTML = "Saving new item to DB..."
@@ -199,7 +189,7 @@ function App(props) {
       await axios
         .put(`https://organizer-apps-api.herokuapp.com/expences/${item.id}`, item)
         .then(response => {
-          console.log("Axios update response: ", response);
+          //console.log("Axios update response: ", response);
 
           message.classList.toggle("success");
           message.innerHTML = "Updated..."
@@ -225,7 +215,7 @@ function App(props) {
                             currency: passedItem.currency, 
                             list: passedItem.list === "before" ? "after" : "before"
                         }
-    console.log("Updated ite to post", updatedItem)
+    // console.log("Updated item to post", updatedItem)
     setList( prevList => {
       const arrToDel = prevList[passedItem.list].filter( item => item.id !== passedItem.id);
       const arrToAdd = [...prevList[arrToAddType], updatedItem ]; //{ after: [] }
@@ -270,45 +260,48 @@ function App(props) {
 
 // ########################################################
   function switchCurrency() {
-    console.log("Before switch", settings.appCurrency);
+    // console.log("Before switch", settings.appCurrency);
     setSettings(prevValue => settings.appCurrency === "cad" 
       ? {...prevValue, appCurrency: "rub"} 
       : {...prevValue, appCurrency: "cad"} 
     );
 
-    console.log("After switch", settings.appCurrency);
+    // console.log("After switch", settings.appCurrency);
     let convertedBeforeList = convertCosts(list.before);
     let convertedAfterList = convertCosts(list.after);
     setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
   }
 
-
-
-
   function sumItems(array) {
     if(array) {
       const temp = array.filter(item => item.visible === true);
-      console.log("TEMP ARRAY FILTERED", temp);
+      // console.log("TEMP ARRAY FILTERED", temp);
       const temp2 = temp.reduce( (accum, item) => accum + item.price, 0)
-      console.log("TEMP REDUCED", temp2);
-      return temp2
+      // console.log("TEMP REDUCED", temp2);
+      if(array[0].cuurency !== settings.appCurrency) {
+        if(array[0].currency === "cad") {
+          let temp3 = ((Math.round((temp2 * rateCadRub) * 100) / 100));
+          return temp3;
+        } else {
+          let temp3 = ((Math.round((temp2 / rateCadRub) * 100) / 100));
+          return temp3;
+        }
+      } else {
+        return temp2;
+      }
+
     } else {
-      console.log("Array seems like not ready: ", array)
+      // console.log("Array seems like not ready: ", array)
     }
     
   }
 
-  function updateSums() {
-    setSum({before: sumItems("before"), after: sumItems("after")})
-  }
-
-  //console.log("RATE (55,3)", rateCadRub);
 
   return (
     <Container fixed>
       <div className="content-wrapper">
-        <TableHeading budget={settings.budget} data={list} onCountTotal={sumItems}>
-        </TableHeading>
+        <TableHeading settings={settings} sum={sum} rate={rateCadRub} onSwitch={switchCurrency} />
+        
         <div className="content">
           <div className="section first">
             <h2>Before moving</h2>
@@ -324,10 +317,11 @@ function App(props) {
                   onHideItem={onHide}
                   onBookItem={onBookmark}
                   curr={settings.appCurrency}
-                  onSwitch={switchCurrency}
                   >
-                    
-                    <InputLineGroup array="before" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
+                      <InputLineGroup array="before" 
+                                      onItemAdd={onAdd} 
+                                      settings={settings} 
+                                      exRate={rateCadRub} />
                   </List>
               }
             </div>
@@ -346,7 +340,6 @@ function App(props) {
                   onHideItem={onHide}
                   onBookItem={onBookmark}
                   curr={settings.appCurrency}
-                  onSwitch={switchCurrency}
                   >
                     <InputLineGroup array="after" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
                 </List>

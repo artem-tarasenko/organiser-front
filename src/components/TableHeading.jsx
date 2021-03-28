@@ -6,42 +6,55 @@ import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 
+import Switch from '@material-ui/core/Switch';
+// import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+
 
 
 
 function TableHeading(props) {
     const [open, setOpen] = useState(false);
+    const { settings, sum, rate } = props;
+
+    const formatter = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: (settings.appCurrency ? settings.appCurrency : "CAD") });
     
-    const handleOpen = () => {
-        setOpen(true);
-    };
+    //updating state
+    const handleOpen = () => { setOpen(true) };
+    const handleClose = () => { setOpen(false) };
+    const budgetResult = normalizedBudget() - (sum.before + sum.after);
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+    function normalizedBudget() {
+        if(settings.appCurrency !== settings.budgetCurrency) {
+            return settings.budgetCurrency === "rub" 
+                ? (Math.round((settings.budget / rate) * 100)) /100
+                : (Math.round((settings.budget * rate) * 100)) /100
+        } else {
+            return settings.budget
+        }
+    }
 
+    function toggleCurrencySwitch(e) {
+        //console.log("SWITCH :", e.target.checked);
+        props.onSwitch();
+
+    }
+
+    //console.log("NORMALIZING: ", normalizedBudget(), settings.budgetCurrency, rate);
+
+    console.group('HEADING');
+    console.log("Sum", sum);
+    console.log("Settings cuurency", settings.appCurrency);
+    console.log("Rate", rate);
+    console.log("Normalize()", normalizedBudget());
+    console.log("Budget result", budgetResult);
+    console.groupEnd();
 
 
     return <div className="heading">
                 <div className="heading-title">
-                    <h1>TItle here</h1>
-                    
-                    {/* <div className="money flex-row">
-                        <input type="text" /> 
-                        <label>$</label>
-                        <input type="button" value="change" />
-                        <input type="text" />
-                        <label>P</label>
-                    </div> */}
-                    <div className="heading-totals">
-                        {/* <h2>Budget: {budget}</h2>
-                        <h2>Before: {totalBefore}</h2>
-                        <h2>After: {totalAfter}</h2>
-                        <h2>Total: {total}</h2> */}
-                    </div>
-                </div>
-                <div>
-                    <IconButton aria-label="addItem" onClick={handleOpen}>
+                    <h1>Expences planner</h1>
+                    <IconButton aria-label="addItem" onClick={handleOpen} className="heading-button">
                         <SettingsIcon />
                     </IconButton>
                     <Modal
@@ -58,11 +71,35 @@ function TableHeading(props) {
                         <Fade in={open}>
                             <div className="settings-modal">
                                 <h2 id="transition-modal-title">Settings</h2>
-                                
+                                <div className="money flex-row">
+                                    <input type="text" /> 
+                                    <label>$</label>
+                                    <input type="button" value="change" />
+                                    <input type="text" />
+                                    <label>P</label>
+                                </div>
                             </div>
                         </Fade>
                     </Modal>
                 </div>
+                <div className="heading-totals">
+                    <p className="totals budget">Budget: <span>{formatter.format(normalizedBudget())}</span></p>
+                    <p className="totals sum">Before: <span>{formatter.format(sum.before)}</span></p>
+                    <p className="totals sum">After: <span>{formatter.format(sum.after)}</span></p>
+                    <p className={"totals sum-result " + (budgetResult >= 0 ? "" : "excel")}>Total: <span>{formatter.format(budgetResult)}</span></p>
+                    <div className="currency-change" >
+
+                        <button className={"currency-switch " + (settings.appCurrency === "cad" ? "active" : "")} onClick={props.onSwitch} >CAD</button> 
+                        <FormControlLabel value="bottom" label="TOP" labelPlacement="top" control={
+                            <Switch color="primary" color="default" 
+                                onChange={toggleCurrencySwitch}
+                                checked={settings.appCurrency === "cad" ? false : true}
+                            />
+                        }/>
+                        <button className={"currency-switch " + (settings.appCurrency === "rub" ? "active" : "")} onClick={props.onSwitch} >RUR</button>
+                    </div>
+                    
+                </div>    
             </div>
 }
 

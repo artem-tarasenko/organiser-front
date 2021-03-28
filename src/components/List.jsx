@@ -1,11 +1,9 @@
 import React from "react";
 import SingleItem from "./SingleItem.jsx";
-// import IconButton from '@material-ui/core/IconButton';
-// import AddBoxIcon from '@material-ui/icons/AddBox';
-// import PublishIcon from '@material-ui/icons/Publish';
 
 function List(props) {
     const data = props.itemList;
+    const formatter = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: (props.curr ? props.curr : "CAD") });
 
     function sortArray(a, b) {
         if(a.important) {
@@ -21,13 +19,13 @@ function List(props) {
                 {/* HEADERS */}
                 <div className="col-headers">
                     <p className="header-title">Наименование</p>
-                    <p className="summary">Total: {props.sum}</p>
-                    <p className="currency-button">
+                    <p className="summary">Total: {formatter.format(props.sum)}</p>
+                    {/* <p className="currency-button">
                         {props.curr === "cad" 
                             ? <button className="currency-switch" onClick={props.onSwitch} >CAD</button> 
                             : <button className="currency-switch" onClick={props.onSwitch} >RUR</button>
                         }
-                    </p>
+                    </p> */}
                 </div>
                 {/* TABLE */}
                 <div className="col-items">

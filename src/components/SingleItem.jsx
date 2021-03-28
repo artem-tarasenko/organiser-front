@@ -9,8 +9,6 @@ import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import CloseIcon from '@material-ui/icons/Close';
 import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
 
@@ -18,7 +16,10 @@ function SingleItem(props) {
     const [state, setState] = useState(false);
     const {item, onDelete, onHide, onSwap, onMark, curr} = props;
 
-    
+    const formatter = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: curr });
+
+    //console.log("Item after formatter: ", formatter.format(item.price))
+
 
     //passing functions from App to handle icons back (with item )
     const handleBookmarking = () => onMark(item);
@@ -29,14 +30,8 @@ function SingleItem(props) {
     function showHideIcons(e, usedIcons) {
         const iconSet = e.target.parentNode;
         iconSet.querySelector(".item-buttons-additional").classList.toggle("open");
-                
-        setState(prevState => !prevState);
 
-        // setTimeout(function() {
-        //     console.log("timeout! state: ", state);
-        //     state && iconSet.querySelector(".item-buttons-additional").classList.toggle("open");
-        // }, 2000);
-        
+        setState(prevState => !prevState);
     }
 
 
@@ -44,8 +39,8 @@ function SingleItem(props) {
     return (
         <div className="col-item">
             <p className="item-field-1">{item.name}</p>
-            <p className="item-field-2">
-                {item.price} {curr === "cad" ? '\u0024' : '\u20BD'} 
+            <p className={"item-field-2 " + (item.visible ? "" : "crossed")}>
+                {formatter.format(item.price)}
             </p>
             <div className="item-buttons">
                 <IconButton aria-label="more" onClick={showHideIcons}>

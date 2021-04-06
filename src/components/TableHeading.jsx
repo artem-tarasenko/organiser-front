@@ -9,12 +9,13 @@ import Fade from '@material-ui/core/Fade';
 import Switch from '@material-ui/core/Switch';
 // import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import RepeatIcon from '@material-ui/icons/Repeat';
 
 
 
 
 function TableHeading(props) {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false); //false - RUB, true - CAD
     const { settings, sum, rate } = props;
 
     const formatter = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: (settings.appCurrency ? settings.appCurrency : "CAD") });
@@ -35,20 +36,16 @@ function TableHeading(props) {
     }
 
     function toggleCurrencySwitch(e) {
-        //console.log("SWITCH :", e.target.checked);
         props.onSwitch();
-
     }
 
-    //console.log("NORMALIZING: ", normalizedBudget(), settings.budgetCurrency, rate);
-
-    console.group('HEADING');
-    console.log("Sum", sum);
-    console.log("Settings cuurency", settings.appCurrency);
-    console.log("Rate", rate);
-    console.log("Normalize()", normalizedBudget());
-    console.log("Budget result", budgetResult);
-    console.groupEnd();
+    // console.group('HEADING');
+    // console.log("Sum", sum);
+    // console.log("Settings cuurency", settings.appCurrency);
+    // console.log("Rate", rate);
+    // console.log("Normalize()", normalizedBudget());
+    // console.log("Budget result", budgetResult);
+    // console.groupEnd();
 
 
     return <div className="heading">
@@ -83,22 +80,28 @@ function TableHeading(props) {
                     </Modal>
                 </div>
                 <div className="heading-totals">
-                    <p className="totals budget">Budget: <span>{formatter.format(normalizedBudget())}</span></p>
-                    <p className="totals sum">Before: <span>{formatter.format(sum.before)}</span></p>
-                    <p className="totals sum">After: <span>{formatter.format(sum.after)}</span></p>
-                    <p className={"totals sum-result " + (budgetResult >= 0 ? "" : "excel")}>Total: <span>{formatter.format(budgetResult)}</span></p>
+                    <p className="totals budget">
+                        Budget: <span>{formatter.format(normalizedBudget())}</span>
+                    </p>
+                    <p className="totals sum">
+                        Before: <span>{formatter.format(sum.before)}</span>
+                    </p>
+                    <p className="totals sum">
+                        After: <span>{formatter.format(sum.after)}</span>
+                    </p>
+                    <p className={"totals sum-result " + (budgetResult >= 0 ? "" : "excel")}>
+                        Total: <span>{formatter.format(budgetResult)}</span>
+                    </p>
                     <div className="currency-change" >
-
-                        <button className={"currency-switch " + (settings.appCurrency === "cad" ? "active" : "")} onClick={props.onSwitch} >CAD</button> 
-                        <FormControlLabel value="bottom" label="TOP" labelPlacement="top" control={
+                        <button className={"currency-button " + (settings.appCurrency === "cad" ? "active" : "")} onClick={props.onSwitch} >CAD</button> 
+                        <FormControlLabel value="bottom" className="currency-switch" label="" labelPlacement="top" control={
                             <Switch color="primary" color="default" 
                                 onChange={toggleCurrencySwitch}
                                 checked={settings.appCurrency === "cad" ? false : true}
                             />
                         }/>
-                        <button className={"currency-switch " + (settings.appCurrency === "rub" ? "active" : "")} onClick={props.onSwitch} >RUR</button>
+                        <button className={"currency-button " + (settings.appCurrency === "rub" ? "active" : "")} onClick={props.onSwitch} >RUR</button>
                     </div>
-                    
                 </div>    
             </div>
 }

@@ -9,8 +9,7 @@ import axios from 'axios';
 
 // const rates = Currency();
 // console.log("rates", rates);
-// const currency = await axios.get('http://data.fixer.io/api/latest?access_key=644fe21408c7556ea0360b75c9bb7d3c&symbols=CAD,RUB');
-// console.log("RATES ", currency.data.base, currency.data.rates);
+
 
 
 // const currency = "rub";
@@ -21,18 +20,23 @@ function App(props) {
   const [sum, setSum] = useState({before: 0, after: 0})
 
   
-  const currency = {base: "EUR", rates: {CAD: 1.5, RUB: 88.6}};
-  //console.log("RATES ", currency.data.base, currency.data.rates);
-  sum && console.log("List (state):  ", list);
-  sum && console.log("Settings", settings);
-  sum && console.log("Summary", sum);
+  const currency = {base: "EUR", rates: {CAD: 1.48, RUB: 91.1}};
+  // let currency;
+  // console.log("RATES ", currency);
+  // sum && console.log("List (state):  ", list);
+  // sum && console.log("Settings", settings);
+  // sum && console.log("Summary", sum);
 
-  // setList(props.data);
-  // setSettings(props.settings);
-  // let itemsCurrency = "rub";
-  const rateCadRub =  currency.rates.RUB / currency.rates.CAD;
+  const rateCadRub = currency.rates.RUB / currency.rates.CAD;
+  //console.log("PARSED RATES: ", currency, rateCadRub);
 
   function convertCosts(arr, curr) {
+
+    // console.group('Converting list...');
+    // console.log("Array passed: ", arr);
+    // console.log("Settings curr: ", settings.appCurrency);
+    // console.groupEnd();
+
     let newArr = arr.map(item => {
       //console.group('#################   CONVERTING ARRAY ###############################');
       //console.log("Testing item (name, curr) > ", item.name, "#", item.currency);
@@ -68,6 +72,13 @@ function App(props) {
       const settingsData = await axios.get('https://organizer-apps-api.herokuapp.com/settings');
       
       //fetching external API with rates here
+      // const apiRatesResult = await axios.get('http://data.fixer.io/api/latest?access_key=644fe21408c7556ea0360b75c9bb7d3c&symbols=CAD,RUB');
+      // currency = apiRatesResult.data.rates;
+      // console.log("API RATES ", currency);
+      // const callDate = new Date(Date.now()).toISOString().split("T")[0]; //Array ["YYYY-MM-DD", "HH:MM:SS..."]
+      // console.log("DATE: ", callDate)
+
+
 
       setSettings({budget: settingsData.data[0].budget, appCurrency: "rub", budgetCurrency: "cad"});
         
@@ -78,19 +89,14 @@ function App(props) {
       let convertedBeforeList = convertCosts(beforeList, defaultCurrency);
       let convertedAfterList = convertCosts(afterList, defaultCurrency)
 
-      // console.group('Testing stuff');
-      // console.log("Optimized: ", convertedBeforeList[0].name, convertedBeforeList[0].currency, convertedBeforeList[0].price);
-      // console.log("Optimized: ", convertedBeforeList[1].name, convertedBeforeList[1].currency, convertedBeforeList[1].price);
-      // console.log("Orig: ", beforeList[0].name, beforeList[0].currency, beforeList[0].price);
-      // console.log("Orig: ", beforeList[1].name, beforeList[1].currency, beforeList[1].price);
-      // console.log("Orig after: ", afterList);
-      // console.log("Optimized after: ", convertedAfterList);
-      // console.groupEnd();
+      //console.log("Fetch - convnvert at start arrays: ", convertedBeforeList, convertedAfterList);
 
       setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
+
+      //console.log("SETTING SUMS Before (init array, sum): ", convertedBeforeList, sumItems(convertedBeforeList));
+      //console.log("SETTING SUMS After (init array, sum): ", convertedAfterList, sumItems(convertedAfterList));
       setSum({before: sumItems(convertedBeforeList), after: sumItems(convertedAfterList)})
 
-      //setSum({before: initSumBefore, after: initSumAfter})
     } catch (error) {
       console.error("API Request error", error);
     }
@@ -273,13 +279,23 @@ function App(props) {
   }
 
   function sumItems(array) {
+    
     if(array) {
-      const temp = array.filter(item => item.visible === true);
+      let convertedArray = convertCosts(array);
+      //console.log("SUMMARY - Converted array to process", convertedArray);
+      const temp = convertedArray.filter(item => item.visible === true);
       // console.log("TEMP ARRAY FILTERED", temp);
       const temp2 = temp.reduce( (accum, item) => accum + item.price, 0)
       // console.log("TEMP REDUCED", temp2);
-      if(array[0].cuurency !== settings.appCurrency) {
-        if(array[0].currency === "cad") {
+      // console.group('SUMMARY');
+      // console.log("Converted array to process", convertedArray);
+      // console.log("Visible items", temp);
+      // console.log("Reduces", temp2);
+      // console.log("Testing array curr", convertedArray[0].curency);
+      // console.log("Compare with default curr", settings.appCurrency);
+      // console.groupEnd();
+      if(convertedArray[0].currency !== settings.appCurrency) {
+        if(convertedArray[0].currency === "cad") {
           let temp3 = ((Math.round((temp2 * rateCadRub) * 100) / 100));
           return temp3;
         } else {
@@ -295,6 +311,7 @@ function App(props) {
     }
     
   }
+
 
 
   return (
@@ -317,6 +334,7 @@ function App(props) {
                   onHideItem={onHide}
                   onBookItem={onBookmark}
                   curr={settings.appCurrency}
+                  convertCosts={convertCosts}
                   >
                       <InputLineGroup array="before" 
                                       onItemAdd={onAdd} 
@@ -340,6 +358,7 @@ function App(props) {
                   onHideItem={onHide}
                   onBookItem={onBookmark}
                   curr={settings.appCurrency}
+                  convertCosts={convertCosts}
                   >
                     <InputLineGroup array="after" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
                 </List>

@@ -13,6 +13,15 @@ function List(props) {
         }
     }
 
+    let preparedData = props.convertCosts(data);
+    preparedData = preparedData.sort(sortArray);
+
+    // console.group('###  Render List  ###');
+    // console.log("Data prepared: ", preparedData);
+    // console.log("Setting for list: ", props.settings);
+    // console.log("Sum passed from app: ", props.sum);
+    // console.log("Total formatted: ", formatter.format(props.sum));
+    // console.groupEnd();
     
     return <React.Fragment>
             <div className="col">
@@ -20,16 +29,10 @@ function List(props) {
                 <div className="col-headers">
                     <p className="header-title">Наименование</p>
                     <p className="summary">Total: {formatter.format(props.sum)}</p>
-                    {/* <p className="currency-button">
-                        {props.curr === "cad" 
-                            ? <button className="currency-switch" onClick={props.onSwitch} >CAD</button> 
-                            : <button className="currency-switch" onClick={props.onSwitch} >RUR</button>
-                        }
-                    </p> */}
                 </div>
                 {/* TABLE */}
                 <div className="col-items">
-                    {data.sort(sortArray).map( item => 
+                    {preparedData.map( item => 
                         <SingleItem 
                             key={item.id} 
                             item={item} 

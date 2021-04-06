@@ -13,6 +13,10 @@ p, input {
     font-family: 'Fira Sans', sans-serif;
 }
 
+button:focus {
+    outline: none;
+}
+
 .hidden {
     height: 0;
     overflow: hidden;
@@ -63,7 +67,7 @@ button.heading-button svg {
     display: flex;
     flex-direction: row;
     flex-shrink: 0;
-    justify-content: center;
+    justify-content: space-between;
     padding: 10px 0;
     background-color: #7e9097;
     color: #d5d5d5;
@@ -257,7 +261,7 @@ input[type="button"] {
 }
 .input-group button {
     position: relative;
-    right: 50px;
+    right: 30px;
     opacity: 0;
     margin: 15px 0;
     color: #b0b0b0;
@@ -356,3 +360,27 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
     -moz-appearance: textfield;
 }
+
+
+
+/* ###################################################### */
+/* ########  Currency switcher (header) ##################### */
+.currency-button {
+    background: none;
+    cursor: pointer;
+    box-shadow: none;
+    border: 1px solid #b2b2b2;
+    color: #dfdfdf;
+    padding: 10px;
+    opacity: 0.3;
+}
+
+.currency-button.active {
+    opacity: 1;
+    font-weight: 700;
+}
+
+.currency-change .currency-switch {
+    margin: 0;
+}
+

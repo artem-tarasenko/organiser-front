@@ -5,6 +5,7 @@ import TableHeading from "./components/TableHeading.jsx";
 import InputLineGroup from "./components/InputLineGroup.jsx";
 import ListMessage from "./components/ListMessage.jsx";
 import axios from 'axios';
+import "./index.css";
 
 
 // const rates = Currency();
@@ -316,10 +317,10 @@ function App(props) {
 
   return (
     <Container fixed>
-      <div className="content-wrapper">
+      <div className="content-wrapper flex-col p-0 m-0">
         <TableHeading settings={settings} sum={sum} rate={rateCadRub} onSwitch={switchCurrency} />
         
-        <div className="content">
+        <div className="content flex-col sm:flex-row">
           <div className="section first">
             <h2>Before moving</h2>
             <div className="wrapper">

@@ -20,7 +20,7 @@ function App(props) {
   const [settings, setSettings] = useState({});
   const [sum, setSum] = useState({before: 0, after: 0})
 
-  
+
   const currency = {base: "EUR", rates: {CAD: 1.48, RUB: 91.1}};
   // let currency;
   // console.log("RATES ", currency);
@@ -71,7 +71,7 @@ function App(props) {
     try {
       const expences = await axios.get('https://organizer-apps-api.herokuapp.com/expences');
       const settingsData = await axios.get('https://organizer-apps-api.herokuapp.com/settings');
-      
+
       //fetching external API with rates here
       // const apiRatesResult = await axios.get('http://data.fixer.io/api/latest?access_key=644fe21408c7556ea0360b75c9bb7d3c&symbols=CAD,RUB');
       // currency = apiRatesResult.data.rates;
@@ -82,7 +82,7 @@ function App(props) {
 
 
       setSettings({budget: settingsData.data[0].budget, appCurrency: "rub", budgetCurrency: "cad"});
-        
+
       const beforeList = expences.data.filter( item => item.list === "before");
       const afterList = expences.data.filter(item => item.list === "after");
       const defaultCurrency = "rub"
@@ -119,9 +119,12 @@ function App(props) {
       return {...prevList, [newItem.list]: [...prevList[newItem.list], newItem]}
     });
 
-    const message = document.querySelector(".status-label");
+    const message = document.querySelector(".overlay");
+    const content = document.querySelector(".content-wrapper");
+    content.classList.toggle("unfocused");
     message.innerHTML = "Saving new item to DB..."
     message.classList.toggle("hidden");
+    content.classList.toggle("unfocused");
 
     //activate "Saving label"
     try {
@@ -138,7 +141,7 @@ function App(props) {
     } catch (error) {
         console.error("Axios Post error", error, newItem);
         //show error on Saving label and possibly "retry" button
-        // 
+        //
         message.innerHTML = "Error, the line has not been saved...";
         message.classList.toggle("alert");
         // +++++++
@@ -157,13 +160,15 @@ function App(props) {
     function filterArray(array, itemToDel) {
             return array.filter( item => item.id !== itemToDel.id)
           }
-          
+
     setList( prevData => {
-        return { before: filterArray(prevData["before"], passedItem), 
+        return { before: filterArray(prevData["before"], passedItem),
                   after: filterArray(prevData["after"], passedItem) }
     })
 
-    const message = document.querySelector(".status-label");
+    const message = document.querySelector(".overlay");
+    const content = document.querySelector(".content-wrapper");
+    content.classList.toggle("unfocused");
     message.innerHTML = "Deleting line from DB..."
     message.classList.toggle("hidden");
 
@@ -188,7 +193,9 @@ function App(props) {
 // Using this func directly as event handler will be to complex due to 2 events that require update
   async function updateData(item) {
 
-    const message = document.querySelector(".status-label");
+    const message = document.querySelector(".overlay");
+    const content = document.querySelector(".content-wrapper");
+    content.classList.toggle("unfocused");
     message.innerHTML = "Updating item in DB..."
     message.classList.toggle("hidden");
 
@@ -217,9 +224,9 @@ function App(props) {
   function onMove(passedItem) {
     const arrToDelType = passedItem.list === "before" ? "before" : "after";
     const arrToAddType = passedItem.list === "before" ? "after" : "before";
-    const updatedItem = {...passedItem, 
-                            price: passedItem.price, 
-                            currency: passedItem.currency, 
+    const updatedItem = {...passedItem,
+                            price: passedItem.price,
+                            currency: passedItem.currency,
                             list: passedItem.list === "before" ? "after" : "before"
                         }
     // console.log("Updated item to post", updatedItem)
@@ -240,12 +247,12 @@ function App(props) {
     const updatedItem = {...passedItem, visible: !passedItem.visible}
 
       setList( prevList => {
-        let updatedArray = prevList[passedItem.list].map( item => 
-          item.id === passedItem.id 
-            ? updatedItem 
+        let updatedArray = prevList[passedItem.list].map( item =>
+          item.id === passedItem.id
+            ? updatedItem
             : item
         )
-        
+
         return {...prevList, [passedItem.list]: updatedArray }
       });
 
@@ -257,20 +264,20 @@ function App(props) {
     const editedArray = passedItem.list === "before" ? "before" : "after";
 
     setList( prevList => {
-        let updatedArray = prevList[passedItem.list].map( item => 
+        let updatedArray = prevList[passedItem.list].map( item =>
           item.id === passedItem.id ? {...item, important: !item.important}: item
         )
-        
+
         return {...prevList, [editedArray]: updatedArray }
-    });      
+    });
   }
 
 // ########################################################
   function switchCurrency() {
     // console.log("Before switch", settings.appCurrency);
-    setSettings(prevValue => settings.appCurrency === "cad" 
-      ? {...prevValue, appCurrency: "rub"} 
-      : {...prevValue, appCurrency: "cad"} 
+    setSettings(prevValue => settings.appCurrency === "cad"
+      ? {...prevValue, appCurrency: "rub"}
+      : {...prevValue, appCurrency: "cad"}
     );
 
     // console.log("After switch", settings.appCurrency);
@@ -280,7 +287,7 @@ function App(props) {
   }
 
   function sumItems(array) {
-    
+
     if(array) {
       let convertedArray = convertCosts(array);
       //console.log("SUMMARY - Converted array to process", convertedArray);
@@ -310,7 +317,7 @@ function App(props) {
     } else {
       // console.log("Array seems like not ready: ", array)
     }
-    
+
   }
 
 
@@ -319,27 +326,27 @@ function App(props) {
     <Container fixed>
       <div className="content-wrapper flex-col p-0 m-0">
         <TableHeading settings={settings} sum={sum} rate={rateCadRub} onSwitch={switchCurrency} />
-        
+
         <div className="content flex-col sm:flex-row">
           <div className="section first">
             <h2>Before moving</h2>
             <div className="wrapper">
-              {!list.before 
+              {!list.before
                 ? <p>Loading...</p>
-                : <List 
-                  itemList={list["before"]} 
+                : <List
+                  itemList={list["before"]}
                   sum={sum.before}
                   settings={settings}
-                  onMoveItem={onMove} 
+                  onMoveItem={onMove}
                   onDeleteItem={onDelete}
                   onHideItem={onHide}
                   onBookItem={onBookmark}
                   curr={settings.appCurrency}
                   convertCosts={convertCosts}
                   >
-                      <InputLineGroup array="before" 
-                                      onItemAdd={onAdd} 
-                                      settings={settings} 
+                      <InputLineGroup array="before"
+                                      onItemAdd={onAdd}
+                                      settings={settings}
                                       exRate={rateCadRub} />
                   </List>
               }
@@ -348,13 +355,13 @@ function App(props) {
           <div className="section">
             <h2>After moving</h2>
             <div className="wrapper">
-              {!list.before 
+              {!list.before
                 ? <p>Loading...</p>
-                : <List 
-                  itemList={list["after"]} 
+                : <List
+                  itemList={list["after"]}
                   sum={sum.after}
                   settings={settings}
-                  onMoveItem={onMove} 
+                  onMoveItem={onMove}
                   onDeleteItem={onDelete}
                   onHideItem={onHide}
                   onBookItem={onBookmark}
@@ -367,8 +374,9 @@ function App(props) {
             </div>
           </div>
         </div>
-      <ListMessage />
+
       </div>
+      <ListMessage />
     </Container>
   );
 }

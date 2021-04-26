@@ -14,12 +14,11 @@ p, input {
 }
 
 button:focus {
-    outline: none;
+    outline: none !important;
 }
 
 .hidden {
-    height: 0;
-    overflow: hidden;
+  display: none;
 }
 
 .content-wrapper {
@@ -125,6 +124,15 @@ p.totals.sum-result.excel {
 
 }
 
+.section h2 {
+  margin: 10px 0 30px 20px;
+  font-size: 26px;
+  text-transform: uppercase;
+  color: #6e6f6f;
+}
+
+
+
 .col {
     padding: 0 20px;
     width: 100%;
@@ -133,6 +141,7 @@ p.totals.sum-result.excel {
 .col-headers {
     display: flex;
     flex-flow: row nowrap;
+    margin-bottom: 1.5rem;
 }
 
 .col-headers p {
@@ -163,6 +172,7 @@ p.currency-button {
 .col-item p {
     font-size: 16px;
     font-weight: 300;
+    line-height: 51px;
 }
 
 .col-item p.crossed {
@@ -174,7 +184,7 @@ p.item-field-1 {
 }
 
 p.item-field-2 {
-    min-width: 50px;  
+    min-width: 50px;
 }
 
 .money {
@@ -201,7 +211,7 @@ input[type="button"] {
 
 .item-buttons button {
     /* padding: 9px; */
-} 
+}
 
 .add-btn-group input {
     border: 0;
@@ -383,4 +393,3 @@ input[type='number'] {
 .currency-change .currency-switch {
     margin: 0;
 }
-

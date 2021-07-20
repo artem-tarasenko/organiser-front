@@ -1,6 +1,10 @@
-# ToDo List
+# Organiser / Exprences planner
+A small personal SPA in progress. Meant to help decide how to spend money wisely if you need to buy a lot of staff with a limited budget.
+More description on my website - [link](https://www.at-dev.info/portfolio/expenses-planner-spa)
 
-## Features
+
+## ToDo List
+### Features
 * Add authorized API calls
 * Add auth
 * Add feature to start with just 1 list and be able to add more lists
@@ -16,7 +20,7 @@
 
 
 
-## View
+### View
 * Add mobile layout for 1 list at a time
 * Add 1 location for notifications
 

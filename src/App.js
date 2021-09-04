@@ -7,6 +7,8 @@ import ListMessage from "./components/ListMessage.jsx";
 import axios from 'axios';
 import "./index.css";
 
+import NewHeader from './components/NewHeader.jsx';
+
 
 // const rates = Currency();
 // console.log("rates", rates);
@@ -20,50 +22,25 @@ function App(props) {
   const [settings, setSettings] = useState({});
   const [sum, setSum] = useState({before: 0, after: 0})
 
-
   const currency = {base: "EUR", rates: {CAD: 1.48, RUB: 91.1}};
-  // let currency;
-  // console.log("RATES ", currency);
-  // sum && console.log("List (state):  ", list);
-  // sum && console.log("Settings", settings);
-  // sum && console.log("Summary", sum);
-
   const rateCadRub = currency.rates.RUB / currency.rates.CAD;
-  //console.log("PARSED RATES: ", currency, rateCadRub);
+
 
   function convertCosts(arr, curr) {
-
-    // console.group('Converting list...');
-    // console.log("Array passed: ", arr);
-    // console.log("Settings curr: ", settings.appCurrency);
-    // console.groupEnd();
-
     let newArr = arr.map(item => {
-      //console.group('#################   CONVERTING ARRAY ###############################');
-      //console.log("Testing item (name, curr) > ", item.name, "#", item.currency);
-      //console.log("COMPARE CURRENCY BEFORE CONVERTING: item - settings: ", item.currency, "Default: ", curr)
       if(item.currency !== settings.appCurrency) {
-        //console.log("Item will be converted (name, curr) > ", item.name, "#", item.currency);
         //convert price and update currency
         if(item.currency === "cad") {
-          //console.log("Converting from CAD to RUB >", item.name, "#", item.currency);
-          //console.groupEnd();
           //Result * 10, round it to a number and them /10 to get 1 decimal num
           return {...item, price: ((Math.round((item.price * rateCadRub) * 100) / 100)), currency: "rub"};
         } else if(item.currency === "rub") {
-          //console.log("Converting from RUB to CAD >", item.name, "#", item.currency);
-          //console.groupEnd();
           return {...item, price: ((Math.round((item.price / rateCadRub) * 100) / 100)), currency: "cad"};
         }
       } else {
         //save existing object
-        //console.log("Item currency match, returning as is (name, cur)", item.name, "#", item.currency)
-        //console.groupEnd();
         return item;
       }
     })
-    //console.log("CONVERTING - resulting array to return", newArr);
-    // console.groupEnd();
     return newArr;
   }
 
@@ -71,15 +48,6 @@ function App(props) {
     try {
       const expences = await axios.get('https://organizer-apps-api.herokuapp.com/expences');
       const settingsData = await axios.get('https://organizer-apps-api.herokuapp.com/settings');
-
-      //fetching external API with rates here
-      // const apiRatesResult = await axios.get('http://data.fixer.io/api/latest?access_key=644fe21408c7556ea0360b75c9bb7d3c&symbols=CAD,RUB');
-      // currency = apiRatesResult.data.rates;
-      // console.log("API RATES ", currency);
-      // const callDate = new Date(Date.now()).toISOString().split("T")[0]; //Array ["YYYY-MM-DD", "HH:MM:SS..."]
-      // console.log("DATE: ", callDate)
-
-
 
       setSettings({budget: settingsData.data[0].budget, appCurrency: "rub", budgetCurrency: "cad"});
 
@@ -90,12 +58,7 @@ function App(props) {
       let convertedBeforeList = convertCosts(beforeList, defaultCurrency);
       let convertedAfterList = convertCosts(afterList, defaultCurrency)
 
-      //console.log("Fetch - convnvert at start arrays: ", convertedBeforeList, convertedAfterList);
-
       setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
-
-      //console.log("SETTING SUMS Before (init array, sum): ", convertedBeforeList, sumItems(convertedBeforeList));
-      //console.log("SETTING SUMS After (init array, sum): ", convertedAfterList, sumItems(convertedAfterList));
       setSum({before: sumItems(convertedBeforeList), after: sumItems(convertedAfterList)})
 
     } catch (error) {
@@ -141,16 +104,11 @@ function App(props) {
     } catch (error) {
         console.error("Axios Post error", error, newItem);
         //show error on Saving label and possibly "retry" button
-        //
         message.innerHTML = "Error, the line has not been saved...";
         message.classList.toggle("alert");
-        // +++++++
-        //add retry + dont leave alert class
 
         //    !!! Here may be the app should highlight input field to indicate that error was thrown and wait for retry
     }
-
-
   }
 
 // ###########       DELETE        ##############################################################
@@ -229,7 +187,7 @@ function App(props) {
                             currency: passedItem.currency,
                             list: passedItem.list === "before" ? "after" : "before"
                         }
-    // console.log("Updated item to post", updatedItem)
+
     setList( prevList => {
       const arrToDel = prevList[passedItem.list].filter( item => item.id !== passedItem.id);
       const arrToAdd = [...prevList[arrToAddType], updatedItem ]; //{ after: [] }
@@ -274,13 +232,11 @@ function App(props) {
 
 // ########################################################
   function switchCurrency() {
-    // console.log("Before switch", settings.appCurrency);
     setSettings(prevValue => settings.appCurrency === "cad"
       ? {...prevValue, appCurrency: "rub"}
       : {...prevValue, appCurrency: "cad"}
     );
 
-    // console.log("After switch", settings.appCurrency);
     let convertedBeforeList = convertCosts(list.before);
     let convertedAfterList = convertCosts(list.after);
     setList({before: [...convertedBeforeList], after: [...convertedAfterList]});
@@ -290,18 +246,9 @@ function App(props) {
 
     if(array) {
       let convertedArray = convertCosts(array);
-      //console.log("SUMMARY - Converted array to process", convertedArray);
       const temp = convertedArray.filter(item => item.visible === true);
-      // console.log("TEMP ARRAY FILTERED", temp);
       const temp2 = temp.reduce( (accum, item) => accum + item.price, 0)
-      // console.log("TEMP REDUCED", temp2);
-      // console.group('SUMMARY');
-      // console.log("Converted array to process", convertedArray);
-      // console.log("Visible items", temp);
-      // console.log("Reduces", temp2);
-      // console.log("Testing array curr", convertedArray[0].curency);
-      // console.log("Compare with default curr", settings.appCurrency);
-      // console.groupEnd();
+
       if(convertedArray[0].currency !== settings.appCurrency) {
         if(convertedArray[0].currency === "cad") {
           let temp3 = ((Math.round((temp2 * rateCadRub) * 100) / 100));
@@ -321,28 +268,34 @@ function App(props) {
   }
 
 
+  //! change DB schema to contain lists info tied to a user and 
+  //! has all items and all, so they can be added quickly
 
-  return (
-    <Container fixed>
-      <div className="content-wrapper flex-col p-0 m-0">
-        <TableHeading settings={settings} sum={sum} rate={rateCadRub} onSwitch={switchCurrency} />
+  //! totally refactor LIST component, it should be alone here
 
-        <div className="content flex-col sm:flex-row">
+  return <React.Fragment>
+      <div className="flex flex-col p-0 m-0 h-screen">
+        <div className="order-last fixed bottom-0 w-screen">
+          <NewHeader />
+        </div>
+          
+
+        <div className="content flex flex-col rounded bg-amber-600">
           <div className="section first">
-            <h2>Before moving</h2>
+            <h2>Some title</h2>
             <div className="wrapper">
               {!list.before
                 ? <p>Loading...</p>
                 : <List
-                  itemList={list["before"]}
-                  sum={sum.before}
-                  settings={settings}
-                  onMoveItem={onMove}
-                  onDeleteItem={onDelete}
-                  onHideItem={onHide}
-                  onBookItem={onBookmark}
-                  curr={settings.appCurrency}
-                  convertCosts={convertCosts}
+                    itemList={list["before"]}
+                    sum={sum.before}
+                    settings={settings}
+                    onMoveItem={onMove}
+                    onDeleteItem={onDelete}
+                    onHideItem={onHide}
+                    onBookItem={onBookmark}
+                    curr={settings.appCurrency}
+                    convertCosts={convertCosts}
                   >
                       <InputLineGroup array="before"
                                       onItemAdd={onAdd}
@@ -352,33 +305,36 @@ function App(props) {
               }
             </div>
           </div>
-          <div className="section">
+          {/* <div className="section">
             <h2>After moving</h2>
             <div className="wrapper">
-              {!list.before
-                ? <p>Loading...</p>
-                : <List
-                  itemList={list["after"]}
-                  sum={sum.after}
-                  settings={settings}
-                  onMoveItem={onMove}
-                  onDeleteItem={onDelete}
-                  onHideItem={onHide}
-                  onBookItem={onBookmark}
-                  curr={settings.appCurrency}
-                  convertCosts={convertCosts}
-                  >
-                    <InputLineGroup array="after" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
-                </List>
-              }
+            {!list.before
+              ? <p>Loading...</p>
+              : <List
+              itemList={list["after"]}
+              sum={sum.after}
+              settings={settings}
+              onMoveItem={onMove}
+              onDeleteItem={onDelete}
+              onHideItem={onHide}
+              onBookItem={onBookmark}
+              curr={settings.appCurrency}
+              convertCosts={convertCosts}
+              >
+              <InputLineGroup array="after" onItemAdd={onAdd} settings={settings} exRate={rateCadRub} />
+              </List>
+            }
             </div>
-          </div>
+          </div> */}
         </div>
 
+        <div className="order-first">
+          <TableHeading settings={settings} sum={sum} rate={rateCadRub} onSwitch={switchCurrency} />
+        </div>
       </div>
       <ListMessage />
-    </Container>
-  );
+
+  </React.Fragment>
 }
 
 export default App;

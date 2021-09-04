@@ -18,10 +18,6 @@ function SingleItem(props) {
 
     const formatter = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: curr });
 
-    //console.log("Item after formatter: ", formatter.format(item.price))
-    // console.log("Single item : ", item);
-    // console.log("Single item CURR : ", curr);
-
     //passing functions from App to handle icons back (with item )
     const handleBookmarking = () => onMark(item);
     const handleSwap = () => onSwap(item);
@@ -34,8 +30,6 @@ function SingleItem(props) {
 
         setState(prevState => !prevState);
     }
-
-
 
 
     //24 - dollars, 20 - rubles

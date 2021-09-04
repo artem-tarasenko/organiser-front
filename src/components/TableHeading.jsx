@@ -39,70 +39,47 @@ function TableHeading(props) {
         props.onSwitch();
     }
 
-    // console.group('HEADING');
-    // console.log("Sum", sum);
-    // console.log("Settings cuurency", settings.appCurrency);
-    // console.log("Rate", rate);
-    // console.log("Normalize()", normalizedBudget());
-    // console.log("Budget result", budgetResult);
-    // console.groupEnd();
 
 
-    return <div className="heading">
-                <div className="heading-title">
-                    <h1>Expences planner</h1>
-                    <IconButton aria-label="addItem" onClick={handleOpen} className="heading-button">
-                        <SettingsIcon />
-                    </IconButton>
-                    <Modal
-                        aria-labelledby="transition-modal-title"
-                        aria-describedby="transition-modal-description"
-                        open={open}
-                        onClose={handleClose}
-                        closeAfterTransition
-                        BackdropComponent={Backdrop}
-                        BackdropProps={{
-                        timeout: 500,
-                        }}
-                    >
-                        <Fade in={open}>
-                            <div className="settings-modal">
-                                <h2 id="transition-modal-title">Settings</h2>
-                                <div className="money flex-row">
-                                    <input type="text" /> 
-                                    <label>$</label>
-                                    <input type="button" value="change" />
-                                    <input type="text" />
-                                    <label>P</label>
-                                </div>
-                            </div>
-                        </Fade>
-                    </Modal>
-                </div>
-                <div className="heading-totals">
+
+//! hidden currency exchange btn and 2 more lines for lists totals but they must be changed as well
+
+    return <div className="totals flex  justify-between bg-blue-100 px-8 py-6">
+                <div className="total-group flex flex-col items-end">
                     <p className="totals budget">
-                        Budget: <span>{formatter.format(normalizedBudget())}</span>
+                        Budget: 
                     </p>
-                    <p className="totals sum">
-                        Before: <span>{formatter.format(sum.before)}</span>
-                    </p>
-                    <p className="totals sum">
-                        After: <span>{formatter.format(sum.after)}</span>
-                    </p>
+                    <p className='text-2xl'>{formatter.format(normalizedBudget())}</p>
+                </div>
+
+                <p className="totals sum hidden">
+                    Before: <span>{formatter.format(sum.before)}</span>
+                </p>
+                <p className="totals sum hidden">
+                    After: <span>{formatter.format(sum.after)}</span>
+                </p>
+
+                <div className="total-group flex flex-col items-end">
                     <p className={"totals sum-result " + (budgetResult >= 0 ? "" : "excel")}>
-                        Total: <span>{formatter.format(budgetResult)}</span>
+                        Total: 
                     </p>
-                    <div className="currency-change" >
-                        <button className={"currency-button " + (settings.appCurrency === "cad" ? "active" : "")} onClick={props.onSwitch} >CAD</button> 
-                        <FormControlLabel value="bottom" className="currency-switch" label="" labelPlacement="top" control={
-                            <Switch color="primary" color="default" 
-                                onChange={toggleCurrencySwitch}
-                                checked={settings.appCurrency === "cad" ? false : true}
-                            />
-                        }/>
-                        <button className={"currency-button " + (settings.appCurrency === "rub" ? "active" : "")} onClick={props.onSwitch} >RUR</button>
-                    </div>
-                </div>    
+                    <p className='text-2xl'>
+                        {formatter.format(budgetResult)}
+                    </p>
+                </div>
+                
+
+                {/* <div className="currency-change" >
+                    <button className={"currency-button " + (settings.appCurrency === "cad" ? "active" : "")} onClick={props.onSwitch} >CAD</button> 
+                    <FormControlLabel value="bottom" className="currency-switch" label="" labelPlacement="top" control={
+                        <Switch color="primary" color="default" 
+                            onChange={toggleCurrencySwitch}
+                            checked={settings.appCurrency === "cad" ? false : true}
+                        />
+                    }/>
+                    <button className={"currency-button " + (settings.appCurrency === "rub" ? "active" : "")} onClick={props.onSwitch} >RUR</button>
+                </div> */}
+    
             </div>
 }
 

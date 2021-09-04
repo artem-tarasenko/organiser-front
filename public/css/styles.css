@@ -6,7 +6,7 @@
 
 
 body {
-    background-color: #c4d9df;
+    background-color: #fff;
 }
 
 p, input {
@@ -73,19 +73,19 @@ button.heading-button svg {
     align-items: center;
 }
 
-p.totals.budget {
-    color: #bbfa9a;
-    font-size: 24px;
+p.totals {
+    font-size: 16px;
+    text-transform: uppercase;
 }
 
-p.totals.sum {
-
+p.totals.budget {
+    color: #389209;
+    
 }
 
 p.totals.sum-result {
-    color: #b0e7f0;
-    /* color: #f0b0b0; */
-    font-size: 24px;
+    color: #328592;
+    
     font-weight: 600;
 }
 

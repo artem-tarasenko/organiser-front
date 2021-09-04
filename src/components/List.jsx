@@ -16,13 +16,6 @@ function List(props) {
     let preparedData = props.convertCosts(data);
     preparedData = preparedData.sort(sortArray);
 
-    // console.group('###  Render List  ###');
-    // console.log("Data prepared: ", preparedData);
-    // console.log("Setting for list: ", props.settings);
-    // console.log("Sum passed from app: ", props.sum);
-    // console.log("Total formatted: ", formatter.format(props.sum));
-    // console.groupEnd();
-    
     return <React.Fragment>
             <div className="col">
                 {/* HEADERS */}
